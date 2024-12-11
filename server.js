@@ -13,10 +13,12 @@ const requestHandler = async (req, res) => {
   const {
     version
   } = result[0];
-  res.writeHead(200, {
-    "Content-Type": "text/plain"
+  // res.writeHead(200, {
+  //   "Content-Type": "application/json"
+  // });
+  return res.status(200).json({
+    version: version
   });
-  res.end(version);
 };
 
 app.get('/', requestHandler)
