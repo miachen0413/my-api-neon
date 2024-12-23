@@ -38,8 +38,22 @@ export const getAdvertises = async (req, res) => {
   }
 };
 export const getShoppingCart = async (req, res) => {
+  const {
+    user_id
+  } = req.query
   try {
-    const result = await client.query(`SELECT * FROM ShoopingCart`);
+    const query = `
+    SELECT 
+    products.name AS product_name,
+    products.price AS product_price,
+    cart_items.count AS product_count
+    FROM cart
+    JOIN cart_items ON cart.cart_id = cart_items.cart_id
+    JOIN products ON cart_items.product_id = products.id
+    WHERE
+    user_id = '${user_id}'
+    `
+    const result = await client.query(query);
     const data = result.rows;
     return res.status(200).json({
       data: data

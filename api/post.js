@@ -73,34 +73,31 @@ export const addAdvertises = async (req, res) => {
 }
 
 export const addShoppingCart = async (req, res) => {
-  const shoppint_cart = req.body;
-  let count = 0
-  if (!Array.isArray(shoppint_cart) || shoppint_cart.length === 0) {
-    return res.status(400).json({
-      error: "請提供有效的使用者資料陣列"
-    });
-  }
-  const product_ids = shoppint_cart.map(({
-    product_id
-  }) => product_id)
-  const product_names = shoppint_cart.map(({
-    product_name
-  }) => product_name)
-  const product_prices = shoppint_cart.map(({
-    product_price
-  }) => product_price)
-  const product_counts = shoppint_cart.map(({
-    product_count
-  }) => product_count)
-  const img_names = shoppint_cart.map(({
-    img_name
-  }) => img_name)
+  const shoppint_cart = req.body[0];
+  const {
+    product_id,
+    user_id,
+    count
+  } = shoppint_cart;
+
   try {
+    var result, cart_id
+    const {
+      rows
+    } = await client.query(`SELECT cart_id FROM cart WHERE user_id = '${user_id}'`)
+    if (rows.length === 0) {
+      result = await client.query(`INSERT INTO Cart (user_id, created_at, updated_at)
+        VALUES ($1, $2, $3) RETURNING *`, [user_id, 'NOW()', 'NOW()'])
+      console.log("result==>", result)
+      cart_id = result.rows[0].cart_id
+    } else {
+      cart_id = rows[0].cart_id
+    }
+
     const query = `
-      INSERT INTO ShoopingCart (product_id, product_name, product_price, product_count, img_name)
-      SELECT * FROM UNNEST($1::int[], $2::text[], $3::int[], $4::int[], $5::text[])
+      INSERT INTO cart_items (product_id, cart_id, count) VALUES ($1, $2, $3) RETURNING *
     `;
-    const result = await client.query(query, [product_ids, product_names, product_prices, product_counts, img_names]);
+    result = client.query(query, [product_id, cart_id, count]);
 
     res.status(201).json({
       message: "多筆資料已新增",
