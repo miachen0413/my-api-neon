@@ -166,7 +166,8 @@ app.get('/api/shoppingCart', GET.getShoppingCart);
 app.get('/api/advertises', GET.getAdvertises);
 app.post('/api/addAdvertises', POST.addAdvertises);
 app.post('/api/addShoppingCart', POST.addShoppingCart);
-app.delete('/api/deleteShoppingCart/:id', DELETE.deleteShoppintCart);
+app.delete('/api/deleteShoppingCart', DELETE.deleteShoppintCart);
+// app.get('/api/searchProduct', GET.searchProduct);
 
 app.listen(port, () => console.log('Server ready on port 3000.'));
 

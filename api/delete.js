@@ -4,11 +4,16 @@ import {
 
 export const deleteShoppintCart = async (req, res) => {
   const {
-    id
-  } = req.params;
-  console.log("id->", id)
+    product_id,
+    user_id
+  } = req.body;
+  console.log(req)
   try {
-    const result = await client.query("DELETE FROM ShoopingCart WHERE id = $1", [id]);
+    const {
+      rows
+    } = await client.query(`SELECT cart_id FROM cart WHERE user_id = '${user_id}'`);
+    const cart_id = rows[0].cart_id
+    const result = await client.query("DELETE FROM cart_items WHERE product_id = $1 and cart_id = $2", [product_id, cart_id]);
     if (result.rowCount === 0) {
       res.status(404).json({
         error: "購物車沒有此物件"

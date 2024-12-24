@@ -80,6 +80,12 @@ export const addShoppingCart = async (req, res) => {
     count
   } = shoppint_cart;
 
+  if (count === 0) {
+    return res.status(400).json({
+      error: "數量需要大於0",
+      details: {}
+    });
+  }
   try {
     var result, cart_id
     const {
@@ -88,20 +94,22 @@ export const addShoppingCart = async (req, res) => {
     if (rows.length === 0) {
       result = await client.query(`INSERT INTO Cart (user_id, created_at, updated_at)
         VALUES ($1, $2, $3) RETURNING *`, [user_id, 'NOW()', 'NOW()'])
-      console.log("result==>", result)
       cart_id = result.rows[0].cart_id
     } else {
       cart_id = rows[0].cart_id
     }
 
     const query = `
-      INSERT INTO cart_items (product_id, cart_id, count) VALUES ($1, $2, $3) RETURNING *
+      INSERT INTO cart_items (product_id, cart_id, count) VALUES ($1, $2, $3)
+      ON CONFLICT (product_id, cart_id)
+      DO UPDATE SET count = ${count} + $3
+      RETURNING *;
     `;
-    result = client.query(query, [product_id, cart_id, count]);
+    result = await client.query(query, [product_id, cart_id, count]);
 
     res.status(201).json({
-      message: "多筆資料已新增",
-      result
+      message: "購物車已新增！",
+      result: result.rows
     });
   } catch (error) {
     res.status(500).json({
