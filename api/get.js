@@ -7,12 +7,10 @@ export const getAllProduct = async (req, res) => {
   const search = req.query.search || ''; // 搜尋資料
   const offset = (page - 1) * limit;
   let result
-  console.log("search->", search)
   // if (search === '') {
   //   result = await client.query(`SELECT *, COUNT(*) OVER() FROM Products LIMIT $1 OFFSET $2`, [limit, offset]);
   // } else {
   // }
-    console.log(">>")
     const query = `
     SELECT *, COUNT(*) OVER() FROM Products
     WHERE name SIMILAR TO $1
@@ -20,7 +18,6 @@ export const getAllProduct = async (req, res) => {
     `
     result = await client.query(query, [`%${search}%`, limit, offset]);
   const total = result.rows[0].count;
-  console.log("total-->",total)
   const page_count = Math.ceil(parseInt(total, 10) / limit)
   const data = result.rows;
   return res.status(200).json({

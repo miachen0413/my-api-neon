@@ -79,7 +79,7 @@ export const addShoppingCart = async (req, res) => {
     user_id,
     count
   } = shoppint_cart;
-
+  console.log("添加購物車")
   if (count === 0) {
     return res.status(400).json({
       error: "數量需要大於0",
@@ -102,8 +102,8 @@ export const addShoppingCart = async (req, res) => {
     const query = `
       INSERT INTO cart_items (product_id, cart_id, count) VALUES ($1, $2, $3)
       ON CONFLICT (product_id, cart_id)
-      DO UPDATE SET count = ${count} + $3
-      RETURNING *;
+      DO UPDATE SET count = cart_items.count + $3
+      RETURNING *
     `;
     result = await client.query(query, [product_id, cart_id, count]);
 
